@@ -14,13 +14,18 @@ const (
 	absoluteUrlTemplate = "%s/%s"
 )
 
+type ZotaClientInterface interface {
+	Get(ctx context.Context, endpoint string, params url.Values) (*http.Response, error)
+	Post(ctx context.Context, endpoint string, requestBody []byte) (*http.Response, error)
+}
+
 type ZotaClient struct {
 	client  *http.Client
 	headers map[string]string
 	baseUrl string
 }
 
-func GetZotaClient(secretKey string) *ZotaClient {
+func GetZotaClient(secretKey string) ZotaClientInterface {
 	return &ZotaClient{
 		client: &http.Client{},
 		headers: map[string]string{

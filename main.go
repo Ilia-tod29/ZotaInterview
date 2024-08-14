@@ -2,6 +2,7 @@ package main
 
 import (
 	"ZotaInterview/api"
+	"ZotaInterview/client"
 	"ZotaInterview/util"
 	"log"
 )
@@ -11,8 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot load config")
 	}
+	c := client.GetZotaClient(config.SecretKey)
 
-	server, err := api.NewServer(config)
+	server, err := api.NewServer(config, c)
 	if err != nil {
 		log.Fatal("cannot initiate the server", err)
 	}

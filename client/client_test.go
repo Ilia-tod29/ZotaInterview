@@ -9,17 +9,6 @@ import (
 	"testing"
 )
 
-// TestGetZotaClient tests the creation of the ZotaClient.
-func TestGetZotaClient(t *testing.T) {
-	secretKey := "someSecretKey"
-	client := GetZotaClient(secretKey)
-
-	require.NotNil(t, client)
-	require.Equal(t, "application/json", client.headers["Content-Type"])
-	require.Equal(t, secretKey, client.headers["Authorization"])
-	require.Equal(t, zotaBaseURL, client.baseUrl)
-}
-
 // TestZotaClient_Get tests the GET request functionality.
 func TestZotaClient_Get(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

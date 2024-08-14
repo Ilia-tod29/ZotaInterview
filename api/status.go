@@ -3,6 +3,7 @@ package api
 import (
 	"ZotaInterview/client"
 	"ZotaInterview/util"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -28,12 +29,13 @@ func (s *Server) checkDepositStatus(ctx *gin.Context) {
 
 	s.generateStatusFields(&req)
 
-	c := client.GetZotaClient(s.config.SecretKey)
-	respBody, err := s.CallZotaStatusAPI(ctx, c, &req)
+	respBody, err := s.CallZotaStatusAPI(ctx, s.zotaClient, &req)
 	if err != nil {
-		if code, errConv := strconv.Atoi(respBody); errConv == nil {
-			ctx.JSON(code, errorResponse(err))
-			return
+		if codeVal, ok := respBody["StatusCode"]; ok {
+			if code, ok := codeVal.(int); ok {
+				ctx.JSON(code, errorResponse(err))
+				return
+			}
 		}
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -41,7 +43,7 @@ func (s *Server) checkDepositStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, respBody)
 }
 
-func (s *Server) CallZotaStatusAPI(ctx *gin.Context, client *client.ZotaClient, req *StatusRequest) (string, error) {
+func (s *Server) CallZotaStatusAPI(ctx *gin.Context, client client.ZotaClientInterface, req *StatusRequest) (map[string]interface{}, error) {
 	qParams := url.Values{
 		"merchantID":      {req.MerchantID},
 		"merchantOrderID": {req.MerchantOrderID},
@@ -51,15 +53,22 @@ func (s *Server) CallZotaStatusAPI(ctx *gin.Context, client *client.ZotaClient, 
 	}
 	createDepositRes, err := client.Get(ctx, "api/v1/query/order-status", qParams)
 	if err != nil {
-		return strconv.Itoa(createDepositRes.StatusCode), err
+		return map[string]interface{}{
+			"StatusCode": createDepositRes.StatusCode,
+		}, err
 	}
 
 	defer createDepositRes.Body.Close()
 	body, readErr := io.ReadAll(createDepositRes.Body)
 	if readErr != nil {
-		return "", err
+		return map[string]interface{}{}, err
 	}
-	return string(body), nil
+	// Unmarshal the response body into a map
+	var responseMap map[string]interface{}
+	if err = json.Unmarshal(body, &responseMap); err != nil {
+		return nil, err
+	}
+	return responseMap, nil
 }
 
 func (s *Server) generateStatusFields(req *StatusRequest) {

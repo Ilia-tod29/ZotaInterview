@@ -1,20 +1,23 @@
 package api
 
 import (
+	"ZotaInterview/client"
 	"ZotaInterview/util"
 	"github.com/gin-gonic/gin"
 )
 
 // Server serves HTTP requests for our banking service.
 type Server struct {
-	config util.Config
-	router *gin.Engine
+	config     util.Config
+	zotaClient client.ZotaClientInterface
+	router     *gin.Engine
 }
 
 // NewServer creates a new HTTP server and set up routing.
-func NewServer(config util.Config) (*Server, error) {
+func NewServer(config util.Config, zotaClient client.ZotaClientInterface) (*Server, error) {
 	server := &Server{
-		config: config,
+		config:     config,
+		zotaClient: zotaClient,
 	}
 
 	server.setupRouter()

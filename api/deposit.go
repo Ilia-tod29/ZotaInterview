@@ -50,20 +50,22 @@ func (s *Server) depositMoney(ctx *gin.Context) {
 		return
 	}
 
-	c := client.GetZotaClient(s.config.SecretKey)
-	respBody, err := s.callZotaDepositAPI(ctx, c, &req)
+	respBody, err := s.callZotaDepositAPI(ctx, s.zotaClient, &req)
 	if err != nil {
-		if code, errConv := strconv.Atoi(respBody); errConv == nil {
-			ctx.JSON(code, errorResponse(err))
-			return
+		if codeVal, ok := respBody["StatusCode"]; ok {
+			if code, ok := codeVal.(int); ok {
+				ctx.JSON(code, errorResponse(err))
+				return
+			}
 		}
+
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, respBody)
 }
 
-func (s *Server) callZotaDepositAPI(ctx *gin.Context, client *client.ZotaClient, req *CreateDepositRequest) (string, error) {
+func (s *Server) callZotaDepositAPI(ctx *gin.Context, client client.ZotaClientInterface, req *CreateDepositRequest) (map[string]interface{}, error) {
 	jsonBytes, err := json.Marshal(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -71,15 +73,22 @@ func (s *Server) callZotaDepositAPI(ctx *gin.Context, client *client.ZotaClient,
 
 	createDepositRes, err := client.Post(ctx, fmt.Sprintf("api/v1/deposit/request/%s", s.config.EndpointId), jsonBytes)
 	if err != nil {
-		return strconv.Itoa(createDepositRes.StatusCode), err
+		return map[string]interface{}{
+			"StatusCode": createDepositRes.StatusCode,
+		}, err
 	}
 
 	defer createDepositRes.Body.Close()
 	body, readErr := io.ReadAll(createDepositRes.Body)
 	if readErr != nil {
-		return "", err
+		return map[string]interface{}{}, err
 	}
-	return string(body), nil
+	// Unmarshal the response body into a map
+	var responseMap map[string]interface{}
+	if err = json.Unmarshal(body, &responseMap); err != nil {
+		return nil, err
+	}
+	return responseMap, nil
 }
 
 func (s *Server) validateDepositRequest(req *CreateDepositRequest) error {
@@ -93,8 +102,8 @@ func (s *Server) validateDepositRequest(req *CreateDepositRequest) error {
 	}
 
 	req.MerchantOrderID = util.GenerateNonce(10)
-	req.Signature = util.GenerateSignature(s.config.EndpointId + req.MerchantOrderID + req.OrderAmount + req.CustomerEmail + s.config.SecretKey)
 	s.generateCheckoutUrl(req)
+	req.Signature = util.GenerateSignature(s.config.EndpointId + req.MerchantOrderID + req.OrderAmount + req.CustomerEmail + s.config.SecretKey)
 
 	return nil
 }
