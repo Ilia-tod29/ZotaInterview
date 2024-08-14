@@ -14,17 +14,20 @@ const (
 	absoluteUrlTemplate = "%s/%s"
 )
 
+// ZotaClientInterface allows easier testing
 type ZotaClientInterface interface {
 	Get(ctx context.Context, endpoint string, params url.Values) (*http.Response, error)
 	Post(ctx context.Context, endpoint string, requestBody []byte) (*http.Response, error)
 }
 
+// ZotaClient is used to make API calls to ZOTA API (currently needed GET and POST)
 type ZotaClient struct {
 	client  *http.Client
 	headers map[string]string
 	baseUrl string
 }
 
+// GetZotaClient generates an authenticated ZOTA client
 func GetZotaClient(secretKey string) ZotaClientInterface {
 	return &ZotaClient{
 		client: &http.Client{},
