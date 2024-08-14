@@ -19,6 +19,7 @@ type PaymentReturn struct {
 	PossibleStatuses string `json:"possibleStatuses"`
 }
 
+// paymentReturn is the handler being called when we hit the defined by the application /payment-return endpoint
 func (s *Server) paymentReturn(ctx *gin.Context) {
 	var req PaymentReturn
 	if err := ctx.ShouldBindQuery(&req); err != nil {

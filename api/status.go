@@ -20,6 +20,7 @@ type StatusRequest struct {
 	Signature       string `form:"signature"`
 }
 
+// checkDepositStatus is the handler being called when we hit the defined by the application /status endpoint
 func (s *Server) checkDepositStatus(ctx *gin.Context) {
 	var req StatusRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -43,6 +44,7 @@ func (s *Server) checkDepositStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, respBody)
 }
 
+// CallZotaStatusAPI performs the GET call in order to get the status of a deposit
 func (s *Server) CallZotaStatusAPI(ctx *gin.Context, client client.ZotaClientInterface, req *StatusRequest) (map[string]interface{}, error) {
 	qParams := url.Values{
 		"merchantID":      {req.MerchantID},
@@ -71,6 +73,7 @@ func (s *Server) CallZotaStatusAPI(ctx *gin.Context, client client.ZotaClientInt
 	return responseMap, nil
 }
 
+// generateStatusFields automatically fills the fields that are needed for the request but should not be provided by the user.
 func (s *Server) generateStatusFields(req *StatusRequest) {
 	req.MerchantID = s.config.MerchantId
 	req.Timestamp = strconv.FormatInt(time.Now().Unix(), 10)

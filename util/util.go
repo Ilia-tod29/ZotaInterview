@@ -8,6 +8,7 @@ import (
 
 var alphabet = []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+// GenerateNonce is used in order to generate unique merchantOrderID
 func GenerateNonce(length int) string {
 	randBytes := make([]byte, length)
 	_, err := rand.Read(randBytes)
@@ -26,6 +27,7 @@ func GenerateNonce(length int) string {
 	return string(nonce)
 }
 
+// GenerateSignature is used to generate the authenticating signature for ZOTA API
 func GenerateSignature(str string) string {
 	hash := sha256.New()
 	hash.Write([]byte(str))

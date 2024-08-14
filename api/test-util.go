@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-// Mock for ZotaClientInterface
+// MockZotaClient is a mock for ZotaClientInterface
 type MockZotaClient struct {
 	mock.Mock
 }

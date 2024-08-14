@@ -37,6 +37,7 @@ type CreateDepositRequest struct {
 	Signature                 string `json:"signature"`
 }
 
+// depositMoney is the handler being called when we hit the defined by the application /deposit endpoint
 func (s *Server) depositMoney(ctx *gin.Context) {
 	var req CreateDepositRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -65,6 +66,7 @@ func (s *Server) depositMoney(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, respBody)
 }
 
+// callZotaDepositAPI performs the POST call in order to create a new deposit
 func (s *Server) callZotaDepositAPI(ctx *gin.Context, client client.ZotaClientInterface, req *CreateDepositRequest) (map[string]interface{}, error) {
 	jsonBytes, err := json.Marshal(req)
 	if err != nil {
@@ -83,7 +85,7 @@ func (s *Server) callZotaDepositAPI(ctx *gin.Context, client client.ZotaClientIn
 	if readErr != nil {
 		return map[string]interface{}{}, err
 	}
-	// Unmarshal the response body into a map
+
 	var responseMap map[string]interface{}
 	if err = json.Unmarshal(body, &responseMap); err != nil {
 		return nil, err
@@ -91,6 +93,7 @@ func (s *Server) callZotaDepositAPI(ctx *gin.Context, client client.ZotaClientIn
 	return responseMap, nil
 }
 
+// validateDepositRequest validates the presented data and generates the needed data for performing the request, but not provided by the user
 func (s *Server) validateDepositRequest(req *CreateDepositRequest) error {
 	_, err := strconv.ParseFloat(req.OrderAmount, 64)
 	if err != nil {
@@ -108,7 +111,7 @@ func (s *Server) validateDepositRequest(req *CreateDepositRequest) error {
 	return nil
 }
 
-// TODO: WHY is it needed? https://doc.zota.com/deposit/1.0/#deposit-request
+// generateCheckoutUrl sets the checkout url
 func (s *Server) generateCheckoutUrl(req *CreateDepositRequest) {
-	req.CheckoutUrl = s.config.EndpointId
+	req.CheckoutUrl = s.config.HTTPServerAddress + "/deposit"
 }

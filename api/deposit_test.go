@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// Unit test for depositMoney function
+// TestDepositMoney is a test for depositMoney function
 func TestDepositMoney(t *testing.T) {
 	// Setup
 	gin.SetMode(gin.TestMode)
@@ -24,10 +24,8 @@ func TestDepositMoney(t *testing.T) {
 		zotaClient: &MockZotaClient{},
 	}
 
-	// Define the route
 	router.POST("/deposit", server.depositMoney)
 
-	// Define a successful response body
 	successResponseBody := map[string]interface{}{
 		"code": "200",
 		"data": map[string]interface{}{
@@ -36,7 +34,6 @@ func TestDepositMoney(t *testing.T) {
 			"orderID":         "someOID",
 		},
 	}
-	// Convert response body to JSON
 	responseBody, _ := json.Marshal(successResponseBody)
 
 	validInputBody := CreateDepositRequest{
@@ -52,11 +49,10 @@ func TestDepositMoney(t *testing.T) {
 		CustomerZipCode:     "1234",
 		CustomerPhone:       "+359884324571",
 		CustomerIP:          "103.106.8.104",
-		RedirectUrl:         "http://localhost:8080/some-return-endpoint/",
-		CallbackUrl:         "http://localhost:8080/some-callback-url/",
+		RedirectUrl:         "http://0.0.0.0:8080/some-return-endpoint/",
+		CallbackUrl:         "http://0.0.0.0:8080/some-callback-url/",
 	}
 
-	// Test cases
 	tests := []struct {
 		name           string
 		inputBody      interface{}
@@ -115,11 +111,10 @@ func TestDepositMoney(t *testing.T) {
 	}
 }
 
-// Unit test for validateDepositRequest function
+// TestValidateDepositRequest is a test for validateDepositRequest function
 func TestValidateDepositRequest(t *testing.T) {
 	server := &Server{}
 
-	// Test cases
 	tests := []struct {
 		name          string
 		inputRequest  CreateDepositRequest
@@ -130,7 +125,6 @@ func TestValidateDepositRequest(t *testing.T) {
 			inputRequest: CreateDepositRequest{
 				OrderAmount:     "100.00",
 				CustomerZipCode: "12345",
-				// provide all other required fields
 			},
 			expectedError: nil,
 		},
@@ -139,7 +133,6 @@ func TestValidateDepositRequest(t *testing.T) {
 			inputRequest: CreateDepositRequest{
 				OrderAmount:     "invalid_amount",
 				CustomerZipCode: "12345",
-				// provide all other required fields
 			},
 			expectedError: errors.New("invalid syntax"),
 		},
@@ -148,7 +141,6 @@ func TestValidateDepositRequest(t *testing.T) {
 			inputRequest: CreateDepositRequest{
 				OrderAmount:     "100.00",
 				CustomerZipCode: "invalid_zip",
-				// provide all other required fields
 			},
 			expectedError: errors.New("invalid syntax"),
 		},

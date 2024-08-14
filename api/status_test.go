@@ -22,9 +22,8 @@ var mockConfig = util.Config{
 	MerchantId:        "someMerchant",
 }
 
-// TestCheckDepositStatus_APPROVED tests the successful handling of the checkDepositStatus endpoint.
-func TestCheckDepositStatus_APPROVED(t *testing.T) {
-	// Mock ZotaClient
+// TestCheckDepositStatus tests the successful handling of the checkDepositStatus endpoint.
+func TestCheckDepositStatus(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	server := &Server{

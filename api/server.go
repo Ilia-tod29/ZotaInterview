@@ -26,7 +26,6 @@ func NewServer(config util.Config, zotaClient client.ZotaClientInterface) (*Serv
 
 func (s *Server) setupRouter() {
 	router := gin.Default()
-	//router.Use(CORSMiddleware())
 
 	router.POST("/deposit", s.depositMoney)
 	router.GET("/status", s.checkDepositStatus)

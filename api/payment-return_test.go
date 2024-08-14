@@ -4,105 +4,81 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
+// TestPaymentReturn_APPROVED tests the data displayed after a successful deposit
 func TestPaymentReturn_APPROVED(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-
-	// Create a new server instance
 	server := &Server{}
 
-	// Create a test HTTP request
 	req, err := http.NewRequest(http.MethodGet, "/payment-return?status=APPROVED&orderID=someOID&merchantOrderID=someMOID", nil)
-	assert.NoError(t, err)
-
-	// Create a response recorder to capture the response
+	require.NoError(t, err)
 	resp := httptest.NewRecorder()
 
-	// Setup router and route
 	r := gin.Default()
 	r.GET("/payment-return", server.paymentReturn)
 
-	// Serve the request
 	r.ServeHTTP(resp, req)
 
-	// Assert the response status code
-	assert.Equal(t, http.StatusOK, resp.Code)
+	require.Equal(t, http.StatusOK, resp.Code)
 
-	// Unmarshal the response body into a PaymentReturn struct
 	var result PaymentReturn
 	err = json.Unmarshal([]byte(resp.Body.String()), &result)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	// Validate the returned JSON
-	assert.Equal(t, "APPROVED", result.Status)
-	assert.Equal(t, "someOID", result.OrderID)
-	assert.Equal(t, "someMOID", result.MerchantOrderID)
-	assert.Equal(t, UserMessage, result.UserMessage)
-	assert.Equal(t, "", result.ErrorMessage)
-	assert.Equal(t, "", result.PossibleStatuses)
+	require.Equal(t, "APPROVED", result.Status)
+	require.Equal(t, "someOID", result.OrderID)
+	require.Equal(t, "someMOID", result.MerchantOrderID)
+	require.Equal(t, UserMessage, result.UserMessage)
+	require.Equal(t, "", result.ErrorMessage)
+	require.Equal(t, "", result.PossibleStatuses)
 }
 
+// TestPaymentReturn_ErrorMessage tests the data displayed after an unsuccessful deposit that provides and error message
 func TestPaymentReturn_ErrorMessage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-
-	// Create a new server instance
 	server := &Server{}
 
-	// Create a test HTTP request with an error message
 	req, err := http.NewRequest(http.MethodGet, "/payment-return?status=ERROR&orderID=someOID&merchantOrderID=someMOID&errorMessage=SomeError", nil)
 	assert.NoError(t, err)
-
-	// Create a response recorder to capture the response
 	resp := httptest.NewRecorder()
 
-	// Setup router and route
 	r := gin.Default()
 	r.GET("/payment-return", server.paymentReturn)
 
-	// Serve the request
 	r.ServeHTTP(resp, req)
 
-	// Assert the response status code
-	assert.Equal(t, http.StatusOK, resp.Code)
+	require.Equal(t, http.StatusOK, resp.Code)
 
-	// Unmarshal the response body into a PaymentReturn struct
 	var result PaymentReturn
 	err = json.Unmarshal([]byte(resp.Body.String()), &result)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	// Validate the returned JSON
-	assert.Equal(t, "ERROR", result.Status)
-	assert.Equal(t, "someOID", result.OrderID)
-	assert.Equal(t, "someMOID", result.MerchantOrderID)
-	assert.Equal(t, UserMessage, result.UserMessage)
-	assert.Equal(t, "SomeError", result.ErrorMessage)
-	assert.Equal(t, PossibleStatusesLink, result.PossibleStatuses)
+	require.Equal(t, "ERROR", result.Status)
+	require.Equal(t, "someOID", result.OrderID)
+	require.Equal(t, "someMOID", result.MerchantOrderID)
+	require.Equal(t, UserMessage, result.UserMessage)
+	require.Equal(t, "SomeError", result.ErrorMessage)
+	require.Equal(t, PossibleStatusesLink, result.PossibleStatuses)
 }
 
+// TestPaymentReturn_BadRequest tests that if the provided query params are not valid we will throw a 400 Bad Request
 func TestPaymentReturn_BadRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-
-	// Create a new server instance
 	server := &Server{}
 
-	// Create a test HTTP request missing required fields
 	req, err := http.NewRequest(http.MethodGet, "/payment-return?status=ERROR", nil)
-	assert.NoError(t, err)
-
-	// Create a response recorder to capture the response
+	require.NoError(t, err)
 	resp := httptest.NewRecorder()
 
-	// Setup router and route
 	r := gin.Default()
 	r.GET("/payment-return", server.paymentReturn)
 
-	// Serve the request
 	r.ServeHTTP(resp, req)
 
-	// Assert the response status code
-	assert.Equal(t, http.StatusBadRequest, resp.Code)
+	require.Equal(t, http.StatusBadRequest, resp.Code)
 }

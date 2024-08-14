@@ -16,7 +16,7 @@ func TestLoadConfigFromFile(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, "localhost:8080", config.HTTPServerAddress)
+	require.Equal(t, "0.0.0.0:8080", config.HTTPServerAddress)
 	require.Equal(t, "someSecretKey", config.SecretKey)
 	require.Equal(t, "someEndpoint", config.EndpointId)
 	require.Equal(t, "someMerchant", config.MerchantId)
@@ -24,13 +24,11 @@ func TestLoadConfigFromFile(t *testing.T) {
 
 // TestLoadConfigFromEnv tests loading the configuration from environment variables.
 func TestLoadConfigFromEnv(t *testing.T) {
-	// Set environment variables
-	os.Setenv("HTTP_SERVER_ADDRESS", "localhost:9090")
+	os.Setenv("HTTP_SERVER_ADDRESS", "0.0.0.0:9090")
 	os.Setenv("ZOTA_SECRET_KEY", "anotherSecretKey")
 	os.Setenv("ENDPOINT_ID", "anotherEndpoint")
 	os.Setenv("MERCHANT_ID", "anotherMerchant")
 
-	// Ensure to clean up environment variables after the test
 	defer os.Clearenv()
 
 	viper.Reset()
@@ -39,7 +37,7 @@ func TestLoadConfigFromEnv(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, "localhost:9090", config.HTTPServerAddress)
+	require.Equal(t, "0.0.0.0:9090", config.HTTPServerAddress)
 	require.Equal(t, "anotherSecretKey", config.SecretKey)
 	require.Equal(t, "anotherEndpoint", config.EndpointId)
 	require.Equal(t, "anotherMerchant", config.MerchantId)
