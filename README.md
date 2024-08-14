@@ -10,15 +10,15 @@ This project is and interview task that aims to show skills for calling third-pa
     "customerPhone, "customerIP", "redirectUrl" "callbackUrl"
   - For more information about the parameters, please refer to: https://doc.zota.com/deposit/1.0/#deposit-request
   - Example call:
-  ![Screenshot 2024-08-14 at 14.35.46.png](..%2F..%2F..%2F..%2FScreenshots%2FScreenshot%202024-08-14%20at%2014.35.46.png)
+  ![Screenshot 2024-08-14 at 14 35 46](https://github.com/user-attachments/assets/c781e8a7-337f-469c-96b6-21d10815386b)
 - GET(“/status”) - Checks the status of an existing deposit
   - Required query parameters: "merchantOrderID", "orderID"
   - For more information about the parameters, please refer to: https://doc.zota.com/deposit/1.0/#order-status-request
   - Example call: 
-  ![Screenshot 2024-08-14 at 14.36.18.png](..%2F..%2F..%2F..%2FScreenshots%2FScreenshot%202024-08-14%20at%2014.36.18.png)
+  ![Screenshot 2024-08-14 at 14 36 18](https://github.com/user-attachments/assets/a090c302-f9aa-4b6c-947f-f522670591d2)
 - GET(“/payment-return”) - Simply displays the result after finished deposit. After a deposit is finished the user is being redirected to this endpoint.
   - Example call (after completing a deposit):
-  ![Screenshot 2024-08-14 at 14.37.01.png](..%2F..%2F..%2F..%2FScreenshots%2FScreenshot%202024-08-14%20at%2014.37.01.png)
+  ![Screenshot 2024-08-14 at 14 37 01](https://github.com/user-attachments/assets/b4a3cef7-2f37-468c-9c3d-60a6621bd95e)
 
 ## How to run
 
